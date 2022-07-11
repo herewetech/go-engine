@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2021 HereweTech Co.LTD
+ * Copyright (c) 2022 HereweTech Co.LTD
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,23 +22,39 @@
  */
 
 /**
- * @file interface.go
- * @package interfaces
+ * @file null.go
+ * @package null
  * @author Dr.NP <conan.np@gmail.com>
- * @since 06/23/2022
+ * @since 07/06/2022
  */
 
-package interfaces
+package null
 
-import "context"
+import (
+	"context"
 
-// Interface : Application entrypoint
-type Interface interface {
-	// Start interface
-	Start(context.Context) error
+	"github.com/herewetech/go-engine/interfaces"
+	"github.com/rs/zerolog/log"
+)
 
-	// Stop interface
-	Stop() error
+type NullInterface struct{}
+
+func NewInterface() interfaces.Interface {
+	i := new(NullInterface)
+
+	return i
+}
+
+func (i *NullInterface) Start(ctx context.Context) error {
+	log.Info().Msg("Null interface started, switch to correct interface in NewApp()")
+
+	return nil
+}
+
+func (i *NullInterface) Stop() error {
+	log.Info().Msg("See you, bye!")
+
+	return nil
 }
 
 /*

@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2021 HereweTech Co.LTD
+ * Copyright (c) 2022 HereweTech Co.LTD
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,23 +22,23 @@
  */
 
 /**
- * @file interface.go
- * @package interfaces
+ * @file option.go
+ * @package engine
  * @author Dr.NP <conan.np@gmail.com>
- * @since 06/23/2022
+ * @since 07/06/2022
  */
 
-package interfaces
+package engine
 
-import "context"
+import "github.com/herewetech/go-engine/interfaces"
 
-// Interface : Application entrypoint
-type Interface interface {
-	// Start interface
-	Start(context.Context) error
-
-	// Stop interface
-	Stop() error
+// Option : Application option definition
+type Option struct {
+	Group      string
+	Name       string
+	Version    string
+	ConfigType string // YAML default
+	Interface  interfaces.Interface
 }
 
 /*

@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2021 HereweTech Co.LTD
+ * Copyright (c) 2022 HereweTech Co.LTD
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,23 +22,51 @@
  */
 
 /**
- * @file interface.go
- * @package interfaces
+ * @file service.go
+ * @package service
  * @author Dr.NP <conan.np@gmail.com>
- * @since 06/23/2022
+ * @since 07/05/2022
  */
 
-package interfaces
+package service
 
-import "context"
+import (
+	"context"
+	"os"
+	"os/signal"
 
-// Interface : Application entrypoint
-type Interface interface {
-	// Start interface
-	Start(context.Context) error
+	"github.com/herewetech/go-engine/interfaces"
+	"github.com/rs/zerolog/log"
+)
 
-	// Stop interface
-	Stop() error
+type ServiceInterface struct{}
+
+func NewIntercace() interfaces.Interface {
+	i := new(ServiceInterface)
+
+	return i
+}
+
+func (i *ServiceInterface) Start(ctx context.Context) error {
+	closeSigs := make(chan os.Signal, 1)
+	signal.Notify(closeSigs, os.Interrupt)
+
+	log.Info().Msg("Service interface started")
+
+	select {
+	case <-closeSigs:
+		log.Info().Msg("Terminate signal got")
+	case <-ctx.Done():
+		log.Info().Msg("Main context done")
+	}
+
+	return nil
+}
+
+func (i *ServiceInterface) Stop() error {
+	log.Info().Msg("Service interface stopped")
+
+	return nil
 }
 
 /*

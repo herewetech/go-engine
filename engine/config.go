@@ -30,7 +30,46 @@
 
 package engine
 
-func loadConfig() {}
+import (
+	"strings"
+	"sync"
+
+	"github.com/fsnotify/fsnotify"
+	"github.com/rs/zerolog/log"
+	"github.com/spf13/viper"
+)
+
+var (
+	once           sync.Once
+	_defaultConfig viper.Viper
+)
+
+func initConfig(group, name string) {
+	once.Do(func() {
+		_defaultConfig = *viper.New()
+		_defaultConfig.SetConfigName(name)
+		_defaultConfig.SetConfigType("yuaml")
+		if group != "" {
+			_defaultConfig.AddConfigPath("/etc/" + group + "/" + name)
+			_defaultConfig.AddConfigPath("$HOME/." + group + "/" + name)
+			_defaultConfig.SetEnvPrefix(group)
+		} else {
+			_defaultConfig.AddConfigPath("/etc/" + name)
+			_defaultConfig.AddConfigPath("$HOME/." + name)
+		}
+
+		_defaultConfig.AddConfigPath(".")
+		_defaultConfig.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+		_defaultConfig.AutomaticEnv()
+
+		_defaultConfig.OnConfigChange(func(e fsnotify.Event) {
+			// Config file change
+			log.Info().Msg("config file refreshed")
+		})
+		_defaultConfig.WatchConfig()
+		_defaultConfig.ReadInConfig()
+	})
+}
 
 /*
  * Local variables:

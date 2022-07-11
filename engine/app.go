@@ -31,21 +31,40 @@
 package engine
 
 import (
-	"github.com/herewetech/go-engine/interfaces"
+	"context"
+
+	"github.com/herewetech/go-engine/interfaces/null"
 )
 
-// App : Application definition
+// App : application definition
 type App struct {
-	Name       string
-	Version    string
-	Interfaces []interfaces.Interface
+	option      *Option
+	mainContext context.Context
+	mainCancle  context.CancelFunc
 }
 
 /* {{{ [NewApp] - Creates engine application */
 
 // NewApp creates engine application
-func NewApp() (*App, error) {
-	return nil, nil
+func NewApp(o *Option) (*App, error) {
+	// logger
+	initLogger()
+
+	// Load config
+	initConfig(o.Group, o.Name)
+
+	if o.Interface == nil {
+		o.Interface = null.NewInterface()
+	}
+
+	ctx, cancle := context.WithCancel(context.Background())
+
+	app := new(App)
+	app.option = o
+	app.mainContext = ctx
+	app.mainCancle = cancle
+
+	return app, nil
 }
 
 /* }}} */
@@ -54,11 +73,23 @@ func NewApp() (*App, error) {
 
 // Start application
 func (app *App) Start() error {
+	// Start interface
+	if app.option.Interface != nil {
+		return app.option.Interface.Start(app.mainContext)
+	}
+
 	return nil
 }
 
 // Stop application
 func (app *App) Stop() error {
+	app.mainCancle()
+
+	// Stop interface
+	if app.option.Interface != nil {
+		return app.option.Interface.Stop()
+	}
+
 	return nil
 }
 
